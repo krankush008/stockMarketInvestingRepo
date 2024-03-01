@@ -1,99 +1,74 @@
 import React, { useEffect, useState} from 'react'
-import axios from 'axios'
+import './Alerts.css';
 
-const Alerts = ({ allBonds, selectedBonds, dispatch }) => {
-  const [yourBonds, setYourBonds] = useState([]);
+const Alerts = (props) => {
+  const {selectedBonds = [], handleThresholdChange, handleCheckboxChange } = props;
+ 
+  const itemsPerPage = 5; // Set the number of items per page
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleCheckboxChange = (bond) => {
-    if (selectedBonds.has(bond.isin)) {
-      const updatedSelectedBonds = new Map(selectedBonds);
-      updatedSelectedBonds.delete(bond.isin);
-      dispatch({ type: 'SET_SELECTED_BONDS', payload: updatedSelectedBonds });
-    } else {
-      dispatch({
-        type: 'SET_SELECTED_BONDS',
-        payload: new Map(selectedBonds).set(bond.isin, { bond, threshold: '' })
-      });
-    }
-  };
+  // Calculate the range of bonds to display based on pagination
+  const indexOfLastBond = currentPage * itemsPerPage;
+  const indexOfFirstBond = indexOfLastBond - itemsPerPage;
+  const currentBonds = Array.from(selectedBonds.values()).slice(indexOfFirstBond, indexOfLastBond);
 
-  const handleThresholdChange = (bond, threshold) => {
-    if (threshold === '' && selectedBonds.has(bond.isin)) {
-      dispatch({
-        type: 'SET_SELECTED_BONDS',
-        payload: new Map(selectedBonds).set(bond.isin, { bond, threshold: '' })
-      });
-    } else {
-      dispatch({
-        type: 'SET_SELECTED_BONDS',
-        payload: new Map(selectedBonds).set(bond.isin, { bond, threshold: parseInt(threshold) })
-      });
-    }
-  };
-
-  useEffect(() => {
-    const fetchYourBonds = async () => {
-      try {
-        const userSelectedBondsResponse = await axios.get(`http://localhost:8080/api/getAlertsByUserId/${124}`);
-        const userSelectedBonds = userSelectedBondsResponse.data.map(bond => ({
-            isin: bond.bondId,
-            xirr: bond.xirr
-        }));
-        const yourBonds = allBonds.filter(bond => {
-            return userSelectedBonds.some(selectedBond => selectedBond.isin === bond.isin);
-        }).map(filteredBond => ({
-            ...filteredBond,
-            xirr: userSelectedBonds.find(selectedBond => selectedBond.isin === filteredBond.isin).xirr
-        }));
-        const selectedBonds = yourBonds.map(bond => {
-            return {
-              "bond": {
-                  "isin": bond.isin,
-                  "creditScore": bond.creditScore,
-                  "maturityDate": bond.maturityDate
-              },
-              "threshold": bond.xirr
-            }
-          }
-        );
-        const selectedBondsMap = new Map();
-        selectedBonds.forEach(bond => {
-            selectedBondsMap.set(bond.bond.isin, bond);
-        });
-        dispatch({ type: 'SET_SELECTED_BONDS', payload: selectedBondsMap});
-        setYourBonds(selectedBonds);
-      } catch (error) {
-        console.error('Error fetching all bonds data:', error);
-      }
-    }
-    fetchYourBonds();
-  }, [allBonds]);
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <ul className="filtered-bonds-list">
-      {yourBonds.map((bond) => (
-        <li key={bond.bond.isin}>
-          <input
-            type="checkbox"
-            className="bond-checkbox"
-            checked={selectedBonds.has(bond.bond.isin)}
-            onChange={() => handleCheckboxChange(bond.bond)}
-          />
-          ID: {bond.bond.isin}, Credit Score: {bond.bond.creditScore}, Maturity: {bond.bond.maturityDate}
-          {selectedBonds.has(bond.bond.isin) && selectedBonds.get(bond.bond.isin).threshold === '' && (
-            <span style={{ color: 'red', marginLeft: '10px' }}>Please enter threshold</span>
-          )}
-          Threshold:
-          <input
-            type="number"
-            className="threshold-input"
-            min="0"
-            value={selectedBonds.has(bond.bond.isin) ? selectedBonds.get(bond.bond.isin).threshold : ''}
-            onChange={(e) => handleThresholdChange(bond.bond, e.target.value)}
-          />
-        </li>
-      ))}
-    </ul>
+    <div>
+      <table className="filtered-bonds-table">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>ID</th>
+            <th>Credit Score</th>
+            <th>Maturity</th>
+            <th>Threshold</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentBonds.map((bond) => (
+            <tr key={bond.bond.isin} className="bond-row">
+              <td>
+                <label className="bond-checkbox-label">
+                  <input
+                    type="checkbox"
+                    className="bond-checkbox"
+                    checked={true}
+                    onChange={() => handleCheckboxChange(bond.bond)}
+                  />
+                </label>
+              </td>
+              <td>{bond.bond.isin}</td>
+              <td>{bond.bond.creditScore}</td>
+              <td>{bond.bond.maturityDate}</td>
+              <td>
+                {selectedBonds.get(bond.bond.isin).threshold === '' && (
+                  <span style={{ color: 'red' }}>Please enter threshold</span>
+                )}
+                <input
+                  type="number"
+                  className="threshold-input"
+                  min="0"
+                  value={selectedBonds.get(bond.bond.isin).threshold}
+                  onChange={(e) => handleThresholdChange(bond.bond, e.target.value)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="pagination">
+        {Array.from({ length: Math.ceil(selectedBonds.size / itemsPerPage) }, (_, index) => (
+          <button key={index + 1} onClick={() => paginate(index + 1)} className={currentPage === index + 1 ? 'active' : ''}>
+            {index + 1}
+          </button>
+        ))}
+      </div>
+    </div>
   );
-}
+};
+
+
 export default Alerts

@@ -105,3 +105,63 @@
     cursor: pointer;
     border-radius: 5px;
   }
+
+  /* YourComponent.css */
+
+.filter-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-inputs {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.filter-select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Add more styles as needed */
+/* YourComponent.css */
+
+.bond-item {
+  list-style-type: none;
+  margin-bottom: 15px;
+}
+
+.bond-label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.bond-checkbox {
+  margin-right: 10px;
+}
+
+.threshold-input {
+  width: 50px;
+  padding: 8px;
+  margin-left: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.threshold-error {
+  color: red;
+  margin-left: 10px;
+}
+
+/* Add more styles as needed */
