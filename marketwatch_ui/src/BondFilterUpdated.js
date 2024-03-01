@@ -252,50 +252,63 @@ const BondFilterUpdated = () => {
             </button>
           </div>
           <h3 className="filtered-bonds-title">Filtered Bonds:</h3>
-          <ul className="filtered-bonds-list">
-            {filter.bonds.length > 0 ? (
-              filter.bonds.map((bond, bondIndex) => (
-                <li key={bondIndex} className="bond-item">
-                  <label className="bond-label">
-                    <input
-                      type="checkbox"
-                      className="bond-checkbox"
-                      onChange={() => handleCheckboxChange(bond)}
-                      checked={selectedBonds.has(bond.isin)}
-                    />
-                    ID: {bond.isin}, Credit Score: {bond.creditScore}, Maturity:{' '}
-                    {bond.maturityDate}
-                    {selectedBonds.has(bond.isin) &&
-                      selectedBonds.get(bond.isin).threshold === '' && (
-                        <span
-                          style={{ color: 'red', marginLeft: '10px' }}
-                        >
-                          Please enter threshold
-                        </span>
-                      )}
-                    Threshold:
-                    <input
-                      type="number"
-                      className="threshold-input"
-                      min="0"
-                      value={
-                        selectedBonds.has(bond.isin)
-                          ? selectedBonds.get(bond.isin).threshold
-                          : ''
-                      }
-                      onChange={(e) =>
-                        handleThresholdChange(bond, e.target.value)
-                      }
-                    />
-                  </label>
-                </li>
-              ))
-            ) : (
-              <li>No bonds found</li>
-            )}
-          </ul>
-        </div>
+      <table className="bond-table">
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>ID</th>
+          <th>Credit Score</th>
+          <th>Maturity</th>
+          <th>Threshold</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filter.bonds.length > 0 ? (
+          filter.bonds.map((bond, bondIndex) => (
+            <tr key={bondIndex} className="bond-item">
+              <td>
+                <input
+                  type="checkbox"
+                  className="bond-checkbox"
+                  onChange={() => handleCheckboxChange(bond)}
+                  checked={selectedBonds.has(bond.isin)}
+                />
+              </td>
+              <td>{bond.isin}</td>
+              <td>{bond.creditScore}</td>
+              <td>{bond.maturityDate}</td>
+              <td>
+                {selectedBonds.has(bond.isin) &&
+                selectedBonds.get(bond.isin).threshold === '' && (
+                  <span style={{ color: 'red', marginLeft: '10px' }}>
+                    Please enter threshold
+                  </span>
+                )}
+                <input
+                  type="number"
+                  className="threshold-input"
+                  min="0"
+                  value={
+                    selectedBonds.has(bond.isin)
+                      ? selectedBonds.get(bond.isin).threshold
+                      : ''
+                  }
+                  onChange={(e) => handleThresholdChange(bond, e.target.value)}
+                />
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="5">No bonds found</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+
+      </div>
       ))}
+ 
       <button className="submit-btn" onClick={handleSubmit}>
         Submit
       </button>
