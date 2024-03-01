@@ -69,7 +69,7 @@ Navigate to the Backend Directory
 
 2)   Build and run the backend application
 
-    `./mvnw spring-boot:run`
+    `mvn spring-boot:run`
 
 3)   Access the backend API 
 
