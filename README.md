@@ -75,4 +75,45 @@ Navigate to the Backend Directory
 
      http://localhost:8080
 
+#### Database Setup
+
+Setup your database
+
+1)   Update the system repositories: To update system repositories, use the following command in the terminal by pressing “CTRL+ALT+T”:
+
+     `sudo apt update`
+
+2)   Install the MySQL server on your PC using the following command in the next step:
+
+      `sudo apt-get install mysql-server`
+
+3)   Check the status of MySQL service. Check the “MySQL” service’s status next:
+
+      `systemctl is-active mysql`
+
+4)   Configure MySQL server. Now, type the command shown below to configure the MySQL server in its first, interactive configuration:
+
+      `sudo mysql_secure_installation`
+
+5)   Install MySQL Workbench Community using sudo aptitude
+
+      `sudo snap install mysql-workbench-community`
+
+6)   Open the mysql workbench UI
+
+7)   Click on + icon to add connection
+
+10)  In connection name write "mydb"
+
+11)  In host name paste this end point link
+
+      `mydb.cx4mcmwqcij8.ap-southeast-2.rds.amazonaws.com`
+
+12) In username set it to 'root'
+
+13) In password set 'atylbvc_+90B'
+
+14) Click on Test connection to know if you are able to connect or not
+
+15) Now click on ok
 
