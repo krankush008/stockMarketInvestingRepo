@@ -43,7 +43,7 @@
   
   .apply-filter-btn,
   .remove-filter-btn {
-    background-color: #fc7f0b;
+    background-color: #eb7a10;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -100,7 +100,7 @@
     margin-left: 5px;
   }
   .show-alert-btn {
-    background-color: orange;
+    background-color: #4CAF50;
     color: white;
     border: none;
     padding: 10px 20px;
