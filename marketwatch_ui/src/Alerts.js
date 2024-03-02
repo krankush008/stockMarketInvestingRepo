@@ -1,6 +1,16 @@
 import React, { useEffect, useState} from 'react'
 import './Alerts.css';
 
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import TablePagination from '@mui/material/TablePagination';
+
 const Alerts = (props) => {
   const {selectedBonds = [], handleThresholdChange, handleCheckboxChange } = props;
  
@@ -14,24 +24,44 @@ const Alerts = (props) => {
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+  }));
+  
+  const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+  }));
 
   return (
     <div>
-      <table className="filtered-bonds-table">
-        <thead>
-          <tr>
-            <th>Select</th>
-            <th>ID</th>
-            <th>Credit Score</th>
-            <th>Maturity</th>
-            <th>Threshold</th>
-          </tr>
-        </thead>
-        <tbody>
+      <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell align="right">Select</StyledTableCell>
+            <StyledTableCell align="right">ID</StyledTableCell>
+            <StyledTableCell align="right">Credit Score</StyledTableCell>
+            <StyledTableCell align="right">Maturity</StyledTableCell>
+            <StyledTableCell align="right">Threshold</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {currentBonds.map((bond) => (
-            <tr key={bond.bond.isin} className="bond-row">
-              <td>
-                <label className="bond-checkbox-label">
+            <StyledTableRow key={bond.bond.isin} className="bond-row">
+              <StyledTableCell component="th" scope="row">
+              <label className="bond-checkbox-label">
                   <input
                     type="checkbox"
                     className="bond-checkbox"
@@ -39,12 +69,11 @@ const Alerts = (props) => {
                     onChange={() => handleCheckboxChange(bond.bond)}
                   />
                 </label>
-              </td>
-              <td>{bond.bond.isin}</td>
-              <td>{bond.bond.creditScore}</td>
-              <td>{bond.bond.maturityDate}</td>
-              <td>
-                {selectedBonds.get(bond.bond.isin).threshold === '' && (
+              </StyledTableCell>
+              <StyledTableCell align="right">{bond.bond.isin}</StyledTableCell>
+              <StyledTableCell align="right">{bond.bond.creditScore}</StyledTableCell>
+              <StyledTableCell align="right">{bond.bond.maturityDate}</StyledTableCell>
+              <StyledTableCell align="right">{selectedBonds.get(bond.bond.isin).threshold === '' && (
                   <span style={{ color: 'red' }}>Please enter threshold</span>
                 )}
                 <input
@@ -53,12 +82,12 @@ const Alerts = (props) => {
                   min="0"
                   value={selectedBonds.get(bond.bond.isin).threshold}
                   onChange={(e) => handleThresholdChange(bond.bond, e.target.value)}
-                />
-              </td>
-            </tr>
+                /></StyledTableCell>
+            </StyledTableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
+    </TableContainer>
       <div className="pagination">
         {Array.from({ length: Math.ceil(selectedBonds.size / itemsPerPage) }, (_, index) => (
           <button key={index + 1} onClick={() => paginate(index + 1)} className={currentPage === index + 1 ? 'active' : ''}>
