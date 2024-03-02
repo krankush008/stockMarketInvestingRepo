@@ -1,0 +1,59 @@
+/* Add these styles to your existing CSS or adjust as needed */
+
+.filter-label {
+    margin-right: 10px; /* Adjust the right margin as needed */
+    margin-bottom: 10px; /* Add this line for space between lines */
+    font-weight: bold;
+    color: white;
+  }
+  /* Add these styles to your existing CSS or adjust as needed */
+
+.filter-section {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: black;
+}
+
+.filter-inputs {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  margin: 10px;
+}
+
+.filter-label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.filter-select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.filter-buttons {
+  margin-top: 10px;
+}
+
+.apply-filter-btn,
+.remove-filter-btn {
+  background-color: #796b6b;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 10px;
+  border-radius: 3px;
+}
+
+.filter-input {
+  padding: 10px; /* Adjust the padding as needed */
+}

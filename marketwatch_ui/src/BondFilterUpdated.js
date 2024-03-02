@@ -12,6 +12,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import FilterSection from './FilterSection';
+import BondsTable from './BondsTable';
 import TablePagination from '@mui/material/TablePagination';
 
 
@@ -216,9 +218,11 @@ const BondFilterUpdated = () => {
   return (
     <div className="bond-filter-container">
       <h2 className="page-title">Bond Filters</h2>
+      <div style={{ textAlign: 'center' }}>
       <button
         className="show-alert-btn"
         onClick={() => setShowAlert(!showAlert)}
+        style={{ marginRight: '10px' }}
       >
         {showAlert ? 'Hide Alerts' : 'Show saved Alerts'}
       </button>
@@ -232,112 +236,28 @@ const BondFilterUpdated = () => {
           />
         </>
       )}
-      <button className="add-filter-btn" onClick={handleAddFilter}>
+      <button className="add-filter-btn" onClick={handleAddFilter} style={{ marginRight: '10px' }}>
         Add Filter
       </button>
-      {filters.map((filter, index) => (
-        <div key={index} className="filter-section">
-          <div className="filter-inputs">
-            <label className="filter-label">Credit Score:</label>
-            <select
-              className="filter-select"
-              onChange={(e) =>
-                handleFilterChange(index, 'creditScore', e.target.value)
-              }
-              value={filter.creditScore}
-            >
-              <option value="">Select Credit Score</option>
-              {uniqueCreditScores.map((score, i) => (
-                <option key={i} value={score}>
-                  {score}
-                </option>
-              ))}
-            </select>
-            <label className="filter-label">Maturity:</label>
-            <select
-              className="filter-select"
-              onChange={(e) =>
-                handleFilterChange(index, 'maturity', e.target.value)
-              }
-              value={filter.maturity}
-            >
-              <option value="">Select Maturity</option>
-              {uniqueMonths.map((month, i) => (
-                <option key={i} value={month}>
-                  {month} months
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="filter-buttons">
-            <button
-              className="apply-filter-btn"
-              onClick={() => applyFilters(index)}
-            >
-              Apply Filters
-            </button>
-            <button
-              className="remove-filter-btn"
-              onClick={() => handleRemoveFilter(index)}
-            >
-              Remove
-            </button>
-          </div>
-          <h3 className="filtered-bonds-title">Filtered Bonds:</h3>
-
-          <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell align="right">Select</StyledTableCell>
-            <StyledTableCell align="right">ID</StyledTableCell>
-            <StyledTableCell align="right">Credit Score</StyledTableCell>
-            <StyledTableCell align="right">Maturity</StyledTableCell>
-            <StyledTableCell align="right">Threshold</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {filter.bonds.length > 0 ? (
-          filter.bonds.map((bond, bondIndex) => (
-            <StyledTableRow key={bondIndex} className="bond-item">
-              <StyledTableCell component="th" scope="row">
-              <input
-                  type="checkbox"
-                  className="bond-checkbox"
-                  onChange={() => handleCheckboxChange(bond)}
-                  checked={selectedBonds.has(bond.isin)}
-                />
-              </StyledTableCell>
-              <StyledTableCell align="right">{bond.isin}</StyledTableCell>
-              <StyledTableCell align="right">{bond.creditScore}</StyledTableCell>
-              <StyledTableCell align="right">{bond.maturityDate}</StyledTableCell>
-              <StyledTableCell align="right">{selectedBonds.has(bond.isin) &&
-                selectedBonds.get(bond.isin).threshold === '' && (
-                  <span style={{ color: 'red', marginLeft: '10px' }}>
-                    Please enter threshold
-                  </span>
-                )}
-                <input
-                  type="number"
-                  className="threshold-input"
-                  min="0"
-                  value={
-                    selectedBonds.has(bond.isin)
-                      ? selectedBonds.get(bond.isin).threshold
-                      : ''
-                  }
-                  onChange={(e) => handleThresholdChange(bond, e.target.value)}
-                /></StyledTableCell>
-            </StyledTableRow>
-          ))): (
-            <tr>
-              <td colSpan="5">No bonds found</td>
-            </tr>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
       </div>
+      {filters.map((filter, index) => (
+        <div key={index}>
+          <FilterSection
+            filter={filter}
+            uniqueCreditScores={uniqueCreditScores}
+            uniqueMonths={uniqueMonths}
+            handleFilterChange={(field, value) => handleFilterChange(index, field, value)}
+            applyFilters={() => applyFilters(index)}
+            handleRemoveFilter={() => handleRemoveFilter(index)}
+          />
+          <h3 className="filtered-bonds-title">Filtered Bonds:</h3>
+          <BondsTable
+            filter={filter}
+            selectedBonds={selectedBonds}
+            handleCheckboxChange={handleCheckboxChange}
+            handleThresholdChange={handleThresholdChange}
+          />
+        </div>
       ))}
  
       <button className="submit-btn" onClick={handleSubmit}>
