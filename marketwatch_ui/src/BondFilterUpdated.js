@@ -3,6 +3,17 @@ import axios from 'axios';
 import './BondFilterUpdated.css';
 import Alerts from './Alerts';
 import API_ENDPOINTS from './apiConfig';
+import Example from './Example';
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import TablePagination from '@mui/material/TablePagination';
+
 
 const monthsInYear = 12;
 export const initialState = {
@@ -41,6 +52,7 @@ const BondFilterUpdated = () => {
   const uniqueMonths = useMemo(() => Array.from({ length: maxMonthsRange }, (_, i) => i + 1), [maxMonthsRange]);
   const dummyUserId = 124;
   const monthsInYear = 12;
+  
 
   useEffect(() => {
     const fetchAllBonds = async () => {
@@ -112,6 +124,26 @@ const BondFilterUpdated = () => {
     const months = (maturity.getFullYear() - today.getFullYear()) * monthsInYear + maturity.getMonth() - today.getMonth();
     return months;
   };
+
+  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+  }));
+  
+  const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+  }));
 
   const handleAddFilter = () => {
     dispatch({ type: 'ADD_FILTER', payload: { creditScore: '', maturity: '', threshold: '', bonds: [] } });
@@ -252,33 +284,34 @@ const BondFilterUpdated = () => {
             </button>
           </div>
           <h3 className="filtered-bonds-title">Filtered Bonds:</h3>
-      <table className="bond-table">
-      <thead>
-        <tr>
-          <th>Select</th>
-          <th>ID</th>
-          <th>Credit Score</th>
-          <th>Maturity</th>
-          <th>Threshold</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filter.bonds.length > 0 ? (
+
+          <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell align="right">Select</StyledTableCell>
+            <StyledTableCell align="right">ID</StyledTableCell>
+            <StyledTableCell align="right">Credit Score</StyledTableCell>
+            <StyledTableCell align="right">Maturity</StyledTableCell>
+            <StyledTableCell align="right">Threshold</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filter.bonds.length > 0 ? (
           filter.bonds.map((bond, bondIndex) => (
-            <tr key={bondIndex} className="bond-item">
-              <td>
-                <input
+            <StyledTableRow key={bondIndex} className="bond-item">
+              <StyledTableCell component="th" scope="row">
+              <input
                   type="checkbox"
                   className="bond-checkbox"
                   onChange={() => handleCheckboxChange(bond)}
                   checked={selectedBonds.has(bond.isin)}
                 />
-              </td>
-              <td>{bond.isin}</td>
-              <td>{bond.creditScore}</td>
-              <td>{bond.maturityDate}</td>
-              <td>
-                {selectedBonds.has(bond.isin) &&
+              </StyledTableCell>
+              <StyledTableCell align="right">{bond.isin}</StyledTableCell>
+              <StyledTableCell align="right">{bond.creditScore}</StyledTableCell>
+              <StyledTableCell align="right">{bond.maturityDate}</StyledTableCell>
+              <StyledTableCell align="right">{selectedBonds.has(bond.isin) &&
                 selectedBonds.get(bond.isin).threshold === '' && (
                   <span style={{ color: 'red', marginLeft: '10px' }}>
                     Please enter threshold
@@ -294,24 +327,23 @@ const BondFilterUpdated = () => {
                       : ''
                   }
                   onChange={(e) => handleThresholdChange(bond, e.target.value)}
-                />
-              </td>
+                /></StyledTableCell>
+            </StyledTableRow>
+          ))): (
+            <tr>
+              <td colSpan="5">No bonds found</td>
             </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan="5">No bonds found</td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
       </div>
       ))}
  
       <button className="submit-btn" onClick={handleSubmit}>
         Submit
       </button>
+      
     </div>
   );
   };
