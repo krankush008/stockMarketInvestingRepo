@@ -7,11 +7,11 @@ import com.backend.backend.Entity.Alerts;
 import com.backend.backend.Entity.Bonds;
 import com.backend.backend.Repository.AlertsRepository;
 import com.backend.backend.Repository.BondsRepository;
+import com.backend.backend.Constants.Constants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.scheduling.annotation.Scheduled;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,6 +32,12 @@ import java.util.Date;
 public class NotifyUsers implements CommandLineRunner {
     private final BondsRepository bondsRepository;
     private final AlertsRepository alertsRepository;
+    private final int SECOND_ELEMENT = 2;
+    private final int THIRD_ELEMENT = 3;
+    private final int MIN_NO_OF_CELLS_IN_ROW = 1;
+    private final int FIRST_CELL_INDEX = 0;
+    private final int ISIN_INDEX = 1;
+    private final int THREAD_POOL_SIZE = 1;
 
     public NotifyUsers(BondsRepository bondsRepository, AlertsRepository alertsRepository) {
         this.bondsRepository = bondsRepository;
@@ -40,10 +46,10 @@ public class NotifyUsers implements CommandLineRunner {
 
     private String getCreditScore(Document doc){
         String creditScore="";
-        Element tableDataElement = doc.select("td.fund_name").first();
+        Element tableDataElement = doc.select(Constants.FUND_NAME_ID).first();
         if (tableDataElement != null) {
             // Select the creditScore element within the <td> element
-            Element creditScoreParaElement = tableDataElement.select("p").first();
+            Element creditScoreParaElement = tableDataElement.select(Constants.PARA_KEY).first();
             // Check if the <p> element exists
             if (creditScoreParaElement != null) {
                 // Extract the text content of the <p> element
@@ -63,7 +69,7 @@ public class NotifyUsers implements CommandLineRunner {
         Matcher matcher = pattern.matcher(bondUrl);
         if (matcher.find()) {
             // Extract the ISIN
-            String ISIN=matcher.group(1);
+            String ISIN=matcher.group(ISIN_INDEX);
             isinNo=ISIN;
             System.out.println("ISIN No: " + isinNo);
         } else {
@@ -75,10 +81,10 @@ public class NotifyUsers implements CommandLineRunner {
     private String convertDateFormat(String inputDate) {
         try {
             // Parse the input date
-            SimpleDateFormat inputFormat = new SimpleDateFormat("MMM dd,yyyy");
+            SimpleDateFormat inputFormat = new SimpleDateFormat(Constants.OLD_DATE_FORMAT);
             Date date = inputFormat.parse(inputDate);
             // Format the date in the desired output format
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MMM-yyyy");
+            SimpleDateFormat outputFormat = new SimpleDateFormat(Constants.NEW_DATE_FORMAT);
             return outputFormat.format(date);
         } catch (ParseException e) {
             // Handle the parsing exception
@@ -91,7 +97,7 @@ public class NotifyUsers implements CommandLineRunner {
         String maturityDate = "";
         try {
             if (trElement != null) {
-                Element tdElement = trElement.select("td.text-center").get(2);
+                Element tdElement = trElement.select(Constants.TABLE_DATA_ID).get(SECOND_ELEMENT);
                 if (tdElement != null) {
                     maturityDate = convertDateFormat(tdElement.text());
                     System.out.println("Maturity Date: " + maturityDate);
@@ -110,7 +116,7 @@ public class NotifyUsers implements CommandLineRunner {
         String xirr = "";
         try {
             if (tableRow != null) {
-                Element tdElement = tableRow.select("td.text-center").get(3);
+                Element tdElement = tableRow.select(Constants.TABLE_DATA_ID).get(THIRD_ELEMENT);
                 if (tdElement != null) {
                     xirr = tdElement.text();
                     System.out.println("Xirr Value: " + xirr);
@@ -127,11 +133,11 @@ public class NotifyUsers implements CommandLineRunner {
 
     private void parseHtmlToBonds() {
         try {
-            String url = "https://www.icicidirect.com/bonds/exchange-traded-bonds-ncds";
+            String url = Constants.BOND_API;
             URL apiUrl = new URL(url);
             // Open a connection to the URL
             HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
-            connection.setRequestMethod("GET");
+            connection.setRequestMethod(Constants.GET_OPERATION_STRING);
             int responseCode = connection.getResponseCode();
             // Check if the request was successful (status code 200)
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -146,30 +152,30 @@ public class NotifyUsers implements CommandLineRunner {
                     // Parse the HTML content with Jsoup
                     Document responseDoc = Jsoup.parse(htmlContent);
                     // Get the table row by its ID
-                    Element tableRow = responseDoc.getElementById("NCDBondTbody");
+                    Element tableRow = responseDoc.getElementById(Constants.NCDBODY_ELEMENT_ID);
                     if (tableRow != null) {
                         // Get all rows in the table
-                        Elements rows = tableRow.select("tr");
+                        Elements rows = tableRow.select(Constants.TABLE_ROW_STRING);
                         // Iterate over each row
                         for (Element row : rows) {
                             String maturityValue="";
                             String isinNo="";
                             String creditScore="";
                             String xirrValue="";
-                            Elements cells = row.select("td");
+                            Elements cells = row.select(Constants.TABLE_DATA_STRING);
                             // Check if the row has at least 1 cells
-                            if (cells.size() >= 1) {
+                            if (cells.size() >= MIN_NO_OF_CELLS_IN_ROW) {
                                 // Get the 1st value (index 0, as indexing starts from 0)
-                                String firstVal = cells.get(0).toString();
+                                String firstVal = cells.get(FIRST_CELL_INDEX).toString();
                                 Document firstValDoc = Jsoup.parse(firstVal);
                                 creditScore=getCreditScore(firstValDoc);
-                                Element aTag = firstValDoc.select("td.fund_name a").first();
+                                Element aTag = firstValDoc.select(Constants.FUND_NAME_ANCHOR_TAG).first();
                                     // Check if the <a> tag exists
                                     if (aTag != null) {
                                         // Get the value of the 'href' attribute
-                                        String bondDetailsApi = aTag.attr("href");
+                                        String bondDetailsApi = aTag.attr(Constants.BOND_DETAILS_API_TAG);
                                         String bondUrl = bondDetailsApi;
-                                        Pattern pattern = Pattern.compile("/([^/]+)$");
+                                        Pattern pattern = Pattern.compile(Constants.ISIN_PATTERN_STRING);
                                         // Check if the pattern matches and extract the ISIN
                                         isinNo=getISIN(bondUrl, pattern);
                                         maturityValue=getMaturityDate(row);
@@ -228,10 +234,9 @@ public class NotifyUsers implements CommandLineRunner {
         }
     }
     
-    @Scheduled(fixedRate = 1000) // 30 seconds in milliseconds
     @Override
     public void run(String... args) {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(()-> parseHtmlToBonds(), 0L, 1000L,TimeUnit.MILLISECONDS); 
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
+        scheduler.scheduleAtFixedRate(()-> parseHtmlToBonds(), Constants.INITIAL_DELAY, Constants.FIXED_RATE_INTERVAL, TimeUnit.MILLISECONDS); 
     }
 }

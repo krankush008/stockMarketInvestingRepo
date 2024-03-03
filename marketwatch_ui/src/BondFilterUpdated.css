@@ -1,118 +1,80 @@
 .bond-filter-container {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  
-  .page-title {
-    margin-bottom: 20px;
-  }
-  
-  .add-filter-btn {
-    margin-bottom: 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  .filter-section {
-    margin-bottom: 20px;
-  }
-  
-  .filter-inputs {
-    margin-bottom: 10px;
-  }
-  
-  .filter-label {
-    margin-right: 10px;
-  }
-  
-  .filter-select {
-    padding: 5px;
-  }
-  
-  .filter-buttons {
-    margin-top: 10px;
-  }
-  
-  .apply-filter-btn,
-  .remove-filter-btn {
-    background-color: #eb7a10;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    cursor: pointer;
-    margin-right: 10px;
-    border-radius: 3px;
-  }
-  
-  .filtered-bonds-title {
-    margin-top: 20px;
-  }
-  
-  .filtered-bonds-list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .submit-btn {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
 
-  .bond-item:hover {
-    background-color: #f5f5f5;
-  }
+.page-title {
+  margin-bottom: 20px;
+}
 
+.filter-buttons {
+  margin-top: 10px;
+}
 
-  .bond-item {
-    margin-bottom: 10px;
-  }
-  
-  .bond-checkbox {
-    margin-right: 5px;
-  }
-  
-  .bond-label {
-    display: inline-block;
-    vertical-align: middle;
-  }
-  
-  .threshold-input {
-    margin-left: 5px;
-  }
-  .show-alert-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
+.apply-filter-btn,
+.remove-filter-btn {
+  margin-bottom: 20px;
+  background-color: #eb7a10;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 10px;
+  border-radius: 3px;
+}
 
-  /* YourComponent.css */
+.filtered-bonds-title {
+  margin-top: 20px;
+}
+
+.filtered-bonds-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.submit-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.bond-item:hover {
+  background-color: #f5f5f5;
+}
+
+.bond-item {
+  margin-bottom: 10px;
+}
+
+.bond-label {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.show-alert-btn,
+.add-filter-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
 
 .filter-section {
   margin-bottom: 20px;
@@ -139,14 +101,6 @@
   border-radius: 4px;
 }
 
-/* Add more styles as needed */
-/* YourComponent.css */
-
-
-/* Add more styles as needed */
-
-/* YourComponent.css */
-
 .bond-table {
   width: 100%;
   border-collapse: collapse;
@@ -163,9 +117,8 @@
 }
 
 .bond-table td:first-child {
-  width: 1%; /* Adjust as needed for the checkbox column width */
+  width: 1%;
 }
-
 
 .bond-checkbox {
   margin-right: 10px;
@@ -183,6 +136,4 @@
   color: red;
   margin-left: 10px;
 }
-
-/* Add more styles as needed */
 

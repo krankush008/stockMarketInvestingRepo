@@ -1,12 +1,9 @@
-/* Add these styles to your existing CSS or adjust as needed */
-
 .filter-label {
-    margin-right: 10px; /* Adjust the right margin as needed */
-    margin-bottom: 10px; /* Add this line for space between lines */
-    font-weight: bold;
-    color: white;
-  }
-  /* Add these styles to your existing CSS or adjust as needed */
+  margin-right: 10px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: white;
+}
 
 .filter-section {
   margin: 20px;
@@ -22,11 +19,6 @@
   justify-content: center;
   padding: 10px;
   margin: 10px;
-}
-
-.filter-label {
-  margin-right: 10px;
-  font-weight: bold;
 }
 
 .filter-select {
@@ -55,5 +47,5 @@
 }
 
 .filter-input {
-  padding: 10px; /* Adjust the padding as needed */
+  padding: 10px;
 }
