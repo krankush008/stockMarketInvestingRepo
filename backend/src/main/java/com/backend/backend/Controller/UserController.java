@@ -4,20 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.backend.backend.Constants.Constants;
 import com.backend.backend.Entity.User;
 import com.backend.backend.Entity.UserErrorResponse;
 import com.backend.backend.Repository.UserRepository;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(Constants.USERS_BACKEND_ROUTE)
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
 
-    @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/getUser/{userId}")
+    @GetMapping(Constants.USER_ROUTE)
+    @CrossOrigin(origins = Constants.CORS_ORIGIN)
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
@@ -29,12 +30,13 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
+    @CrossOrigin(origins = Constants.CORS_ORIGIN)
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PutMapping("/updateUser/{id}")
+    @CrossOrigin(origins = Constants.CORS_ORIGIN)
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User updatedUserData) {
         // Find the existing user by ID
         if (!userRepository.existsById(id)) {

@@ -1,83 +1,81 @@
 import React, { useState, useEffect, useMemo, useReducer } from 'react';
 import axios from 'axios';
-import './BondFilterUpdated.css';
 import Alerts from './Alerts';
 import API_ENDPOINTS from './apiConfig';
-import Example from './Example';
-import { styled } from '@mui/material/styles';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import FilterSection from './FilterSection';
 import BondsTable from './BondsTable';
-import TablePagination from '@mui/material/TablePagination';
+import './BondFilterUpdated.css';
+import {
+  MONTHS_IN_YEAR,
+  DUMMY_USER_ID,
+  SET_SELECTED_BONDS_STRING,
+  ADD_FILTER_STRING,
+  SET_ALL_BONDS,
+  SET_MAX_MONTHS_RANGE,
+  REMOVE_FILTER_STRING,
+  UPDATE_FILTER,
+  BOND_KEY,
+  BONDS_KEY,
+  ISIN_KEY,
+  CREDIT_SCORE_KEY,
+  MATURITY_DATE_KEY,
+  THRESHOLD_KEY,
+} from './Constants';
 
-
-const monthsInYear = 12;
 export const initialState = {
   allBonds: [],
   filters: [],
-  maxMonthsRange: monthsInYear,
-  selectedBonds: new Map(),
-};
-
-export const reducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_ALL_BONDS':
-      return { ...state, allBonds: action.payload };
-    case 'SET_MAX_MONTHS_RANGE':
-      return { ...state, maxMonthsRange: action.payload };
-    case 'ADD_FILTER':
-      return { ...state, filters: [...state.filters, action.payload] };
-    case 'REMOVE_FILTER':
-      return { ...state, filters: state.filters.filter((_, i) => i !== action.payload) };
-    case 'UPDATE_FILTER':
-      const updatedFilters = [...state.filters];
-      updatedFilters[action.index][action.field] = action.value;
-      return { ...state, filters: updatedFilters };
-    case 'SET_SELECTED_BONDS':
-      return { ...state, selectedBonds: action.payload };
-    default:
-      return state;
-  }
+  maxMonthsRange: MONTHS_IN_YEAR,
+  selectedBonds: new Map()
 };
 
 const BondFilterUpdated = () => {
+  const [showAlert , setShowAlert] = useState(false);
+  const MONTHS_INCREMENT_FACTOR = 1;
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case SET_ALL_BONDS:
+        return { ...state, allBonds: action.payload };
+      case SET_MAX_MONTHS_RANGE:
+        return { ...state, maxMonthsRange: action.payload };
+      case ADD_FILTER_STRING:
+        return { ...state, filters: [...state.filters, action.payload] };
+      case REMOVE_FILTER_STRING:
+        return { ...state, filters: state.filters.filter((_, i) => i !== action.payload) };
+      case UPDATE_FILTER:
+        const updatedFilters = [...state.filters];
+        updatedFilters[action.index][action.field] = action.value;
+        return { ...state, filters: updatedFilters };
+      case SET_SELECTED_BONDS_STRING:
+        return { ...state, selectedBonds: action.payload };
+      default:
+        return state;
+    }
+  };
   const [state, dispatch] = useReducer(reducer, initialState);
   const { allBonds, filters, maxMonthsRange, selectedBonds } = state;
-  const [showAlert , setShowAlert] = useState(false);
   const uniqueCreditScores = useMemo(() => [...new Set(allBonds.map(bond => bond.creditScore))], [allBonds]);
-  const uniqueMonths = useMemo(() => Array.from({ length: maxMonthsRange }, (_, i) => i + 1), [maxMonthsRange]);
-  const dummyUserId = 124;
-  const monthsInYear = 12;
-  
+  const uniqueMonths = useMemo(() => Array.from({ length: maxMonthsRange }, (_, i) => i + MONTHS_INCREMENT_FACTOR), [maxMonthsRange]);
 
   useEffect(() => {
     const fetchAllBonds = async () => {
       try {
-        const response = await axios.get(API_ENDPOINTS.getBonds());
-        // Filter out the empty object from the response data
-        const filteredBonds = response.data.filter(bond => bond.isin !== '' && bond.maturityDate !== '' && bond.creditScore !== '');
-        dispatch({ type: 'SET_ALL_BONDS', payload: filteredBonds });
+        const bondsResponse = await axios.get(API_ENDPOINTS.getBonds());
+        const filteredBonds = bondsResponse.data.filter(bond => bond.isin !== '' && bond.maturityDate !== '' && bond.creditScore !== '');
         const maxMaturity = Math.max(...filteredBonds.map(bond => monthsToDisplay(bond.maturityDate)));
-        dispatch({ type: 'SET_MAX_MONTHS_RANGE', payload: maxMaturity });
+        dispatch({ type: SET_ALL_BONDS, payload: filteredBonds });
+        dispatch({ type: SET_MAX_MONTHS_RANGE, payload: maxMaturity });
       } catch (error) {
         console.error('Error fetching all bonds data:', error);
       }
     };
-    
     fetchAllBonds();
   }, []);
 
   useEffect(() => {
     const fetchYourBonds = async () => {
       try {
-        const userSelectedBondsResponse = await axios.get(API_ENDPOINTS.getAlertsByUserId(dummyUserId));
-        
+        const userSelectedBondsResponse = await axios.get(API_ENDPOINTS.getAlertsByUserId(DUMMY_USER_ID));
         const userSelectedBonds = userSelectedBondsResponse.data.map(bond => ({
             isin: bond.bondId,
             xirr: bond.xirr
@@ -88,15 +86,14 @@ const BondFilterUpdated = () => {
             ...filteredBond,
             xirr: userSelectedBonds.find(selectedBond => selectedBond.isin === filteredBond.isin).xirr
         }));
- 
         const selectedBonds = yourBonds.map(bond => {
             return {
-              "bond": {
-                  "isin": bond.isin,
-                  "creditScore": bond.creditScore,
-                  "maturityDate": bond.maturityDate
+              [BOND_KEY]: {
+                [ISIN_KEY]: bond.isin,
+                [CREDIT_SCORE_KEY]: bond.creditScore,
+                [MATURITY_DATE_KEY]: bond.maturityDate
               },
-              "threshold": bond.xirr
+              [THRESHOLD_KEY]: bond.xirr
             }
           }
         );
@@ -104,7 +101,7 @@ const BondFilterUpdated = () => {
         selectedBonds.forEach(bond => {
             selectedBondsMap.set(bond.bond.isin, bond);
         });
-        dispatch({ type: 'SET_SELECTED_BONDS', payload: selectedBondsMap});
+        dispatch({ type: SET_SELECTED_BONDS_STRING, payload: selectedBondsMap});
       } catch (error) {
         console.error('Error fetching all bonds data:', error);
       }
@@ -123,59 +120,39 @@ const BondFilterUpdated = () => {
   const monthsToDisplay = (maturityDate) => {
     const today = new Date();
     const maturity = new Date(maturityDate);
-    const months = (maturity.getFullYear() - today.getFullYear()) * monthsInYear + maturity.getMonth() - today.getMonth();
+    const months = (maturity.getFullYear() - today.getFullYear()) * MONTHS_IN_YEAR + maturity.getMonth() - today.getMonth();
     return months;
   };
 
-  const StyledTableCell = styled(TableCell)(({ theme }) => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
-    },
-  }));
-  
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
-    },
-    // hide last border
-    '&:last-child td, &:last-child th': {
-      border: 0,
-    },
-  }));
-
   const handleAddFilter = () => {
-    dispatch({ type: 'ADD_FILTER', payload: { creditScore: '', maturity: '', threshold: '', bonds: [] } });
+    dispatch({ type: ADD_FILTER_STRING, payload: { creditScore: '', maturity: '', threshold: '', bonds: [] } });
   };
 
   const handleRemoveFilter = (index) => {
     const updatedSelectedBonds = new Map(selectedBonds);
     filters[index].bonds.forEach(bond => updatedSelectedBonds.delete(bond.isin));
-    dispatch({ type: 'SET_SELECTED_BONDS', payload: updatedSelectedBonds });
-    dispatch({ type: 'REMOVE_FILTER', payload: index });
+    dispatch({ type: SET_SELECTED_BONDS_STRING, payload: updatedSelectedBonds });
+    dispatch({ type: REMOVE_FILTER_STRING, payload: index });
   };
 
   const handleFilterChange = (index, field, value) => {
-    dispatch({ type: 'UPDATE_FILTER', index, field, value });
+    dispatch({ type: UPDATE_FILTER, index, field, value });
   };
 
   const applyFilters = (index) => {
     const filtered = filterBonds(filters[index]);
-    dispatch({ type: 'UPDATE_FILTER', index, field: 'bonds', value: filtered });
+    dispatch({ type: UPDATE_FILTER, index, field: BONDS_KEY, value: filtered });
   };
 
   const handleThresholdChange = (bond, threshold) => {
     if (threshold === '' && selectedBonds.has(bond.isin)) {
       dispatch({
-        type: 'SET_SELECTED_BONDS',
+        type: SET_SELECTED_BONDS_STRING,
         payload: new Map(selectedBonds).set(bond.isin, { bond, threshold: '' })
       });
     } else {
       dispatch({
-        type: 'SET_SELECTED_BONDS',
+        type: SET_SELECTED_BONDS_STRING,
         payload: new Map(selectedBonds).set(bond.isin, { bond, threshold: parseInt(threshold) })
       });
     }
@@ -185,13 +162,26 @@ const BondFilterUpdated = () => {
     if (selectedBonds.has(bond.isin)) {
       const updatedSelectedBonds = new Map(selectedBonds);
       updatedSelectedBonds.delete(bond.isin);
-      dispatch({ type: 'SET_SELECTED_BONDS', payload: updatedSelectedBonds });
+      dispatch({ type: SET_SELECTED_BONDS_STRING, payload: updatedSelectedBonds });
     } else {
       dispatch({
-        type: 'SET_SELECTED_BONDS',
+        type: SET_SELECTED_BONDS_STRING,
         payload: new Map(selectedBonds).set(bond.isin, { bond, threshold: '' })
       });
     }
+  };
+
+  const setAllChecbox = (bonds, isChecked) => {
+    const updatedSelectedBonds = new Map(selectedBonds);
+    bonds.forEach((bond) => {
+      const isSelected = selectedBonds.has(bond.isin);
+      if ((isChecked && !isSelected) || (!isChecked && isSelected)) {
+        isChecked
+          ? updatedSelectedBonds.set(bond.isin, { bond, threshold: '' })
+          : updatedSelectedBonds.delete(bond.isin);
+      }
+    });
+    dispatch({ type: SET_SELECTED_BONDS_STRING, payload: updatedSelectedBonds });
   };
 
   const handleSubmit = () => {
@@ -203,7 +193,7 @@ const BondFilterUpdated = () => {
     }
     const alerts = selectedBondsArray.map(bond => ({
       bondsId: bond.bond.isin,
-      userId: dummyUserId,
+      userId: DUMMY_USER_ID,
       xirr: bond.threshold
     }));
     axios.put(API_ENDPOINTS.createAlerts(), alerts)
@@ -233,6 +223,7 @@ const BondFilterUpdated = () => {
             selectedBonds={selectedBonds}
             handleThresholdChange={handleThresholdChange}
             handleCheckboxChange={handleCheckboxChange}
+            setAllChecbox={setAllChecbox}
           />
         </>
       )}
@@ -256,17 +247,16 @@ const BondFilterUpdated = () => {
             selectedBonds={selectedBonds}
             handleCheckboxChange={handleCheckboxChange}
             handleThresholdChange={handleThresholdChange}
+            setAllChecbox={setAllChecbox}
           />
         </div>
       ))}
- 
       <button className="submit-btn" onClick={handleSubmit}>
         Submit
       </button>
-      
     </div>
   );
-  };
+};
   
-  export default BondFilterUpdated;
+export default BondFilterUpdated;
   
