@@ -7,6 +7,7 @@ import com.backend.backend.Entity.Alerts;
 import com.backend.backend.Entity.Bonds;
 import com.backend.backend.Repository.AlertsRepository;
 import com.backend.backend.Repository.BondsRepository;
+import com.backend.backend.Common.OperationType;
 import com.backend.backend.Constants.Constants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -131,7 +132,7 @@ public class NotifyUsers implements CommandLineRunner {
         return xirr;
     }
 
-    private void parseHtmlToBonds() {
+    private void parseHtmlToBonds(OperationType operationType) {
         try {
             String url = Constants.BOND_API;
             URL apiUrl = new URL(url);
@@ -180,9 +181,13 @@ public class NotifyUsers implements CommandLineRunner {
                                         isinNo=getISIN(bondUrl, pattern);
                                         maturityValue=getMaturityDate(row);
                                         xirrValue=getXirrBonds(row);
-                                        Bonds bonds=new Bonds(isinNo, maturityValue, creditScore);
-                                        bondsRepository.save(bonds);
-                                        getUsersByXIRR(isinNo, xirrValue);
+                                        if(operationType == OperationType.BONDS_SET){
+                                            Bonds bonds=new Bonds(isinNo, maturityValue, creditScore);
+                                            bondsRepository.save(bonds);
+                                        }
+                                        else if(operationType == OperationType.BONDS_ALERT){
+                                            getUsersByXIRR(isinNo, xirrValue);
+                                        }
                                     } else {
                                         System.out.println("No <a> tag found.");
                                     }
@@ -237,6 +242,9 @@ public class NotifyUsers implements CommandLineRunner {
     @Override
     public void run(String... args) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-        scheduler.scheduleAtFixedRate(()-> parseHtmlToBonds(), Constants.INITIAL_DELAY, Constants.FIXED_RATE_INTERVAL, TimeUnit.MILLISECONDS); 
+        scheduler.scheduleAtFixedRate(()-> parseHtmlToBonds(OperationType.BONDS_ALERT), Constants.INITIAL_DELAY, Constants.FIXED_RATE_INTERVAL_BONDS_ALERT, TimeUnit.MILLISECONDS); 
+        
+        scheduler.scheduleWithFixedDelay(() -> parseHtmlToBonds(OperationType.BONDS_SET),
+        Constants.INITIAL_DELAY, TimeUnit.DAYS.toMillis(Constants.FIXED_RATE_INTERVAL_BONDS_SET), TimeUnit.MILLISECONDS);
     }
 }

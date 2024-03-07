@@ -1,7 +1,7 @@
 package com.backend.backend.Constants;
 
 public class Constants {
-    public static final String CORS_ORIGIN = "http://localhost:3000";    
+    public static final String CORS_ORIGIN = "http://ec2-3-26-9-111.ap-southeast-2.compute.amazonaws.com";    
     public static final String BOND_API = "https://www.icicidirect.com/bonds/exchange-traded-bonds-ncds";   
     public static final String USERS_BACKEND_ROUTE = "/api/users"; 
     public static final String GET_ALERTS_ROUTE = "/api/getAlertsByUserId/{userId}";
@@ -25,5 +25,6 @@ public class Constants {
     public static final String BOND_DETAILS_API_TAG = "href";
     public static final String ISIN_PATTERN_STRING = "/([^/]+)$";
     public static final long INITIAL_DELAY = 0L;
-    public static final long FIXED_RATE_INTERVAL = 1000L;
+    public static final long FIXED_RATE_INTERVAL_BONDS_ALERT = 30000L;
+    public static final long FIXED_RATE_INTERVAL_BONDS_SET = 1;
 }
